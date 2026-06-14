@@ -49,14 +49,13 @@ body {
 .screen {
   position: absolute;
   inset: 0;
-  overflow: hidden;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
 }
 .screen.active {
   opacity: 1;
-  pointer-events: all;
+  pointer-events: auto; /* 'all' is SVG-only — 'auto' is the correct HTML value */
 }
 
 /* ─── SPLASH ─── */
@@ -119,6 +118,13 @@ body {
   padding: 60px 24px 40px;
   background: var(--bg);
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Main app clips at screen level so absolutely-positioned tabs don't bleed */
+#main {
+  overflow: hidden;
 }
 .ob-progress {
   display: flex;
@@ -190,6 +196,12 @@ body {
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   -webkit-appearance: none;
+  -webkit-user-select: text;
+  user-select: text;
+  touch-action: manipulation;
+  cursor: text;
+  position: relative;
+  z-index: 1;
 }
 .glass-input:focus {
   border-color: var(--teal);
