@@ -5,7 +5,7 @@ Run: python app.py
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date, timedelta
-import json, os, csv, io
+import json, os, csv, io, struct, zlib
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "vitalage-dev-secret-2026")
@@ -205,6 +205,48 @@ FOOD_DATA = {
         "Green tea bags", "Extra virgin olive oil",
     ],
 }
+
+def _make_png_icon(size):
+    """Generate a teal-to-purple gradient PNG icon with rounded corners."""
+    r1, g1, b1 = 0, 229, 204    # #00e5cc
+    r2, g2, b2 = 102, 126, 234  # #667eea
+    radius = size * 0.22
+    cx = cy = (size - 1) / 2
+
+    rows = []
+    for y in range(size):
+        row = bytearray([0])
+        for x in range(size):
+            t = x / max(size - 1, 1)
+            r = int(r1 + t * (r2 - r1))
+            g = int(g1 + t * (g2 - g1))
+            b = int(b1 + t * (b2 - b1))
+            dx = max(abs(x - cx) - (cx - radius), 0)
+            dy = max(abs(y - cy) - (cy - radius), 0)
+            a = 0 if (dx * dx + dy * dy) > radius * radius else 255
+            row += bytearray([r, g, b, a])
+        rows.append(bytes(row))
+
+    raw = b"".join(rows)
+    compressed = zlib.compress(raw, 6)
+
+    def chunk(tag, data):
+        crc = zlib.crc32(tag + data) & 0xFFFFFFFF
+        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", crc)
+
+    ihdr = struct.pack(">IIBBBBB", size, size, 8, 6, 0, 0, 0)
+    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr) + chunk(b"IDAT", compressed) + chunk(b"IEND", b"")
+
+
+def _ensure_icons():
+    icon_dir = os.path.join(app.static_folder, "icons")
+    os.makedirs(icon_dir, exist_ok=True)
+    for size in (192, 512):
+        path = os.path.join(icon_dir, f"icon-{size}.png")
+        if not os.path.exists(path):
+            with open(path, "wb") as f:
+                f.write(_make_png_icon(size))
+
 
 def get_age_tier(age):
     for tier, data in AGE_DATA.items():
@@ -536,6 +578,19 @@ def export_csv():
                     headers={"Content-Disposition": f"attachment;filename={fname}"})
 
 
+@app.route("/manifest.json")
+def manifest():
+    return app.send_static_file("manifest.json")
+
+
+@app.route("/sw.js")
+def service_worker():
+    resp = app.send_static_file("sw.js")
+    resp.headers["Service-Worker-Allowed"] = "/"
+    resp.headers["Content-Type"] = "application/javascript"
+    return resp
+
+
 @app.route("/logout")
 def logout():
     session.clear()
@@ -592,6 +647,7 @@ def _get_or_create_log(user):
 
 with app.app_context():
     db.create_all()
+    _ensure_icons()
     # Migrate existing databases by adding any missing columns
     from sqlalchemy import text, inspect as sa_inspect
     inspector = sa_inspect(db.engine)
