@@ -1,0 +1,35 @@
+{
+  "name": "VitalAge — Your Personal Health Guide",
+  "short_name": "VitalAge",
+  "description": "Age-intelligent personal health companion with daily tracking, nutrition guide, and personalized insights.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#050c15",
+  "theme_color": "#050c15",
+  "orientation": "portrait-primary",
+  "categories": ["health", "fitness", "lifestyle"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Track Today",
+      "short_name": "Track",
+      "description": "Log today's health habits",
+      "url": "./index.html#track"
+    },
+    {
+      "name": "Food Guide",
+      "short_name": "Food",
+      "description": "View nutrition guide",
+      "url": "./index.html#food"
+    }
+  ]
+}
