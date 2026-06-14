@@ -72,6 +72,22 @@
 
       <button class="ob-btn" onclick="go(1)">Start My Health Journey →</button>
       <p class="trust">Free · Private · No account needed</p>
+      <p class="signin-link">Already registered? <button class="link-btn" onclick="showSignIn()">Sign in →</button></p>
+    </div>
+  </div>
+
+  <!-- Sign in step -->
+  <div class="ob-step" id="step-signin" style="display:none">
+    <div class="ob-card">
+      <button class="ob-back" onclick="showSignIn(false)">← Back</button>
+      <div class="ob-emoji">🔑</div>
+      <h2 class="ob-h2">Welcome back</h2>
+      <p class="ob-p">Enter the name and date of birth you registered with.</p>
+      <input id="si-name" class="ob-inp" type="text" placeholder="Your first name" autocomplete="given-name">
+      <label class="ob-label" style="margin-top:.5rem">Date of Birth</label>
+      <input id="si-dob" class="ob-inp" type="date">
+      <div id="err-signin" class="ob-err"></div>
+      <button class="ob-btn" id="signin-btn" onclick="doSignIn()">Sign In →</button>
     </div>
   </div>
 
@@ -199,6 +215,36 @@ function finish() {
 
 function showErr(id, msg) { document.getElementById(id).textContent = msg; }
 function clearErr(id) { document.getElementById(id).textContent = ''; }
+
+function showSignIn(show = true) {
+  document.getElementById('step-0').style.display = show ? 'none' : 'flex';
+  document.getElementById('step-signin').style.display = show ? 'flex' : 'none';
+  if (!show) document.getElementById('err-signin').textContent = '';
+}
+
+function doSignIn() {
+  const btn  = document.getElementById('signin-btn');
+  const name = document.getElementById('si-name').value.trim();
+  const dob  = document.getElementById('si-dob').value;
+  if (!name) { showErr('err-signin', 'Please enter your name'); return; }
+  if (!dob)  { showErr('err-signin', 'Please select your date of birth'); return; }
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  fetch('/api/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ name, dob })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.ok) { window.location.href = d.redirect; }
+    else {
+      showErr('err-signin', d.error);
+      btn.disabled = false;
+      btn.textContent = 'Sign In →';
+    }
+  });
+}
 
 // Splash
 window.addEventListener('load', () => {

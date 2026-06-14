@@ -389,6 +389,31 @@ def next_tip():
     return jsonify({"ok": True, "tip": tips[idx], "idx": idx})
 
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
+
+
+@app.route("/api/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    name  = (data.get("name") or "").strip()
+    dob_s = data.get("dob", "")
+    try:
+        dob = datetime.strptime(dob_s, "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        return jsonify({"ok": False, "error": "Invalid date"}), 400
+    user = User.query.filter(
+        db.func.lower(User.name) == name.lower(),
+        User.dob == dob
+    ).first()
+    if not user:
+        return jsonify({"ok": False, "error": "No account found. Check your name and date of birth."}), 404
+    session["user_id"] = user.id
+    return jsonify({"ok": True, "redirect": url_for("dashboard")})
+
+
 @app.route("/api/reset", methods=["POST"])
 def reset():
     user = _get_user()
