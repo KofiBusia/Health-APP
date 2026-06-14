@@ -4,170 +4,156 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#050c15">
-  <meta name="description" content="VitalAge — Your age-intelligent personal health guide.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="VitalAge">
-  <meta name="mobile-web-app-capable" content="yes">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" id="apple-icon" href="">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <title>VitalAge — Your Personal Health Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <title>VitalAge — Your Health Guide</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div id="app">
 
-  <!-- ══════════════════ SPLASH ══════════════════ -->
-  <div id="splash" class="screen active">
+  <!-- ═══ SPLASH ═══ -->
+  <div id="splash" class="screen">
     <div class="splash-glow"></div>
-    <div class="splash-inner">
-      <div class="splash-icon">
-        <svg viewBox="0 0 80 80" width="80" height="80">
-          <defs>
-            <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#00e5cc"/>
-              <stop offset="100%" stop-color="#667eea"/>
-            </linearGradient>
-          </defs>
-          <circle cx="40" cy="40" r="36" fill="url(#sg)" opacity="0.18"/>
-          <polyline points="8,40 20,40 27,54 40,18 53,54 60,40 72,40"
-            fill="none" stroke="url(#sg)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <div class="splash-center">
+      <div class="splash-logo">
+        <svg viewBox="0 0 60 60" width="64" height="64">
+          <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00e5cc"/><stop offset="100%" stop-color="#667eea"/>
+          </linearGradient></defs>
+          <circle cx="30" cy="30" r="28" fill="url(#g1)" opacity="0.15"/>
+          <polyline points="4,30 13,30 18,40 30,12 42,40 47,30 56,30"
+            fill="none" stroke="url(#g1)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
-      <div class="splash-name">VitalAge</div>
-      <div class="splash-tag">Your Personal Health Intelligence</div>
+      <h1 class="splash-title">VitalAge</h1>
+      <p class="splash-sub">Your Personal Health Intelligence</p>
       <div class="splash-bar"><div class="splash-fill"></div></div>
     </div>
   </div>
 
-  <!-- ══════════════════ ONBOARDING ══════════════════ -->
-  <div id="onboarding" class="screen">
+  <!-- ═══ ONBOARDING ═══ -->
+  <div id="onboarding" class="screen" style="display:none">
 
-    <!-- STEP 0 — Welcome (full-screen hero) -->
-    <div class="ob-step active" id="step-0">
-      <div class="welcome-bg"></div>
-
-      <div class="welcome-brand">
-        <div class="brand-logo">
-          <svg viewBox="0 0 40 40" width="36" height="36">
-            <defs><linearGradient id="blg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00e5cc"/><stop offset="100%" stop-color="#667eea"/></linearGradient></defs>
-            <polyline points="2,20 8,20 12,26 20,8 28,26 32,20 38,20" fill="none" stroke="url(#blg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- STEP 0: WELCOME — simple & clean -->
+    <div id="step-0" class="step">
+      <div class="w-top">
+        <div class="w-logo-row">
+          <svg viewBox="0 0 40 40" width="32" height="32">
+            <defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00e5cc"/><stop offset="100%" stop-color="#667eea"/>
+            </linearGradient></defs>
+            <polyline points="2,20 9,20 13,27 20,7 27,27 31,20 38,20"
+              fill="none" stroke="url(#g2)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
+          <span class="w-logo-name">VitalAge</span>
         </div>
-        <span class="brand-name">VitalAge</span>
       </div>
 
-      <div class="welcome-hero">
-        <div class="hero-ring-wrap">
-          <div class="hero-ring r1"></div>
-          <div class="hero-ring r2"></div>
-          <div class="hero-ring r3"></div>
-          <div class="hero-ecg">
-            <svg viewBox="0 0 220 80" width="220" height="80" class="ecg-line">
-              <defs><linearGradient id="ecg-g" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00e5cc" stop-opacity="0"/><stop offset="30%" stop-color="#00e5cc"/><stop offset="70%" stop-color="#667eea"/><stop offset="100%" stop-color="#667eea" stop-opacity="0"/></linearGradient></defs>
-              <polyline points="0,40 30,40 42,40 50,15 58,60 66,40 80,40 90,40 98,20 106,55 114,40 130,40 220,40"
-                fill="none" stroke="url(#ecg-g)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="hero-pulse-dot"></div>
+      <div class="w-mid">
+        <div class="w-ecg-wrap">
+          <svg viewBox="0 0 240 70" class="w-ecg">
+            <defs>
+              <linearGradient id="ecgg" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00e5cc" stop-opacity="0"/>
+                <stop offset="25%" stop-color="#00e5cc"/>
+                <stop offset="75%" stop-color="#667eea"/>
+                <stop offset="100%" stop-color="#667eea" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <polyline
+              points="0,35 35,35 45,35 55,12 65,58 75,35 95,35 105,35 115,18 125,52 135,35 160,35 240,35"
+              fill="none" stroke="url(#ecgg)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              class="ecg-anim"/>
+          </svg>
+          <div class="ecg-dot"></div>
         </div>
-        <h1 class="welcome-title">Your Health,<br><span class="grad-text">Perfectly Guided</span></h1>
-        <p class="welcome-sub">Enter your date of birth. Get health guidance<br>calibrated to exactly your age and life stage.</p>
+        <h2 class="w-title">Your Health,<br><span class="grad">Perfectly Guided</span></h2>
+        <p class="w-sub">Enter your date of birth and get health guidance built exactly for your age.</p>
       </div>
 
-      <div class="feature-grid">
-        <div class="ftile"><span class="ftile-icon">🎯</span><span class="ftile-txt">Age-Smart<br>Guidance</span></div>
-        <div class="ftile"><span class="ftile-icon">📊</span><span class="ftile-txt">Daily Habit<br>Tracking</span></div>
-        <div class="ftile"><span class="ftile-icon">🥗</span><span class="ftile-txt">Nutrition<br>Guide</span></div>
-        <div class="ftile"><span class="ftile-icon">🔬</span><span class="ftile-txt">Screening<br>Reminders</span></div>
+      <div class="w-features">
+        <div class="wf"><span>🎯</span><span>Age-Smart Guidance</span></div>
+        <div class="wf"><span>📊</span><span>Daily Tracking</span></div>
+        <div class="wf"><span>🥗</span><span>Nutrition Guide</span></div>
+        <div class="wf"><span>🔬</span><span>Health Screenings</span></div>
       </div>
 
-      <button class="btn-cta" onclick="App.nextStep()">
-        <span>Get Started</span>
-        <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="10" x2="16" y2="10"/><polyline points="11,5 16,10 11,15"/></svg>
-      </button>
+      <button class="btn-main" onclick="App.go(1)">Get Started →</button>
     </div>
 
-    <!-- STEP 1 — Name -->
-    <div class="ob-step" id="step-1">
-      <div class="step-nav">
-        <button class="back-btn" onclick="App.prevStep()">
-          <svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="16" y1="10" x2="4" y2="10"/><polyline points="9,5 4,10 9,15"/></svg>
-          Back
+    <!-- STEP 1: NAME -->
+    <div id="step-1" class="step" style="display:none">
+      <div class="step-head">
+        <button class="btn-back" onclick="App.go(0)">
+          ← Back
         </button>
-        <div class="step-dots">
-          <div class="sdot active"></div><div class="sdot"></div><div class="sdot"></div>
-        </div>
-        <div style="width:64px"></div>
+        <div class="dots"><div class="dot on"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="width:70px"></div>
       </div>
+
       <div class="step-body">
-        <div class="step-emoji">👋</div>
+        <div class="step-icon">👋</div>
         <h2 class="step-title">What's your name?</h2>
         <p class="step-sub">Let's make this personal to you.</p>
-        <div class="field-wrap">
-          <label class="field-label">Full Name</label>
-          <input type="text" id="inp-name" class="field-input" placeholder="e.g. Kofi Mensah"
-            autocomplete="given-name" autocorrect="off" spellcheck="false">
-        </div>
+
+        <label class="lbl">Your Name</label>
+        <input
+          type="text"
+          id="inp-name"
+          class="inp"
+          placeholder="e.g. Kofi Mensah"
+          autocomplete="given-name"
+          autocorrect="off"
+          spellcheck="false"
+        >
       </div>
-      <button class="btn-cta" onclick="App.nextStep()">
-        <span>Continue</span>
-        <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="10" x2="16" y2="10"/><polyline points="11,5 16,10 11,15"/></svg>
-      </button>
+
+      <button class="btn-main" onclick="App.go(2)">Continue →</button>
     </div>
 
-    <!-- STEP 2 — DOB & Gender -->
-    <div class="ob-step" id="step-2">
-      <div class="step-nav">
-        <button class="back-btn" onclick="App.prevStep()">
-          <svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="16" y1="10" x2="4" y2="10"/><polyline points="9,5 4,10 9,15"/></svg>
-          Back
-        </button>
-        <div class="step-dots">
-          <div class="sdot done"></div><div class="sdot active"></div><div class="sdot"></div>
-        </div>
-        <div style="width:64px"></div>
+    <!-- STEP 2: DATE OF BIRTH + GENDER -->
+    <div id="step-2" class="step" style="display:none">
+      <div class="step-head">
+        <button class="btn-back" onclick="App.go(1)">← Back</button>
+        <div class="dots"><div class="dot done"></div><div class="dot on"></div><div class="dot"></div></div>
+        <div style="width:70px"></div>
       </div>
+
       <div class="step-body">
-        <div class="step-emoji">🎂</div>
-        <h2 class="step-title">When were you born?</h2>
-        <p class="step-sub">Your health profile is calibrated precisely to your age.</p>
-        <div class="field-wrap">
-          <label class="field-label">Date of Birth</label>
-          <input type="date" id="inp-dob" class="field-input" max="2010-01-01" min="1930-01-01">
-        </div>
-        <div class="field-wrap">
-          <label class="field-label">Biological Sex</label>
-          <div class="gender-row">
-            <button class="gender-btn" data-g="male" onclick="App.pickGender(this)">♂ Male</button>
-            <button class="gender-btn" data-g="female" onclick="App.pickGender(this)">♀ Female</button>
-          </div>
+        <div class="step-icon">🎂</div>
+        <h2 class="step-title">Date of birth?</h2>
+        <p class="step-sub">Your health profile is calibrated to your exact age.</p>
+
+        <label class="lbl">Date of Birth</label>
+        <input type="date" id="inp-dob" class="inp" max="2010-01-01" min="1930-01-01">
+
+        <label class="lbl" style="margin-top:18px">Biological Sex</label>
+        <div class="gender-row">
+          <button class="gender-btn" data-g="male"   onclick="App.pickGender(this)">♂ Male</button>
+          <button class="gender-btn" data-g="female" onclick="App.pickGender(this)">♀ Female</button>
         </div>
       </div>
-      <button class="btn-cta" onclick="App.nextStep()">
-        <span>Continue</span>
-        <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="10" x2="16" y2="10"/><polyline points="11,5 16,10 11,15"/></svg>
-      </button>
+
+      <button class="btn-main" onclick="App.go(3)">Continue →</button>
     </div>
 
-    <!-- STEP 3 — Goals -->
-    <div class="ob-step" id="step-3">
-      <div class="step-nav">
-        <button class="back-btn" onclick="App.prevStep()">
-          <svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="16" y1="10" x2="4" y2="10"/><polyline points="9,5 4,10 9,15"/></svg>
-          Back
-        </button>
-        <div class="step-dots">
-          <div class="sdot done"></div><div class="sdot done"></div><div class="sdot active"></div>
-        </div>
-        <div style="width:64px"></div>
+    <!-- STEP 3: GOALS -->
+    <div id="step-3" class="step" style="display:none">
+      <div class="step-head">
+        <button class="btn-back" onclick="App.go(2)">← Back</button>
+        <div class="dots"><div class="dot done"></div><div class="dot done"></div><div class="dot on"></div></div>
+        <div style="width:70px"></div>
       </div>
+
       <div class="step-body goals-body">
-        <h2 class="step-title">Your health goals</h2>
-        <p class="step-sub">Select all that matter to you.</p>
+        <h2 class="step-title">Your goals</h2>
+        <p class="step-sub">Select all that apply.</p>
         <div class="goals-grid">
           <button class="goal-btn" data-goal="weight"    onclick="App.toggleGoal(this)">⚖️<span>Weight</span></button>
           <button class="goal-btn" data-goal="energy"    onclick="App.toggleGoal(this)">⚡<span>Energy</span></button>
@@ -179,18 +165,17 @@
           <button class="goal-btn" data-goal="gut"       onclick="App.toggleGoal(this)">🦠<span>Gut</span></button>
         </div>
       </div>
-      <button class="btn-cta" onclick="App.finish()">
-        <span>Start My Journey 🚀</span>
-      </button>
+
+      <button class="btn-main" onclick="App.finish()">Start My Journey 🚀</button>
     </div>
 
   </div><!-- #onboarding -->
 
-  <!-- ══════════════════ MAIN APP ══════════════════ -->
-  <div id="main" class="screen">
+  <!-- ═══ MAIN APP ═══ -->
+  <div id="main" class="screen" style="display:none">
 
-    <!-- HOME TAB -->
-    <div id="tab-home" class="tab active">
+    <!-- HOME -->
+    <div id="tab-home" class="tab">
       <div class="top-bar">
         <div>
           <div class="greeting" id="greeting"></div>
@@ -205,7 +190,9 @@
       <div class="score-card">
         <div class="score-ring-wrap">
           <svg viewBox="0 0 140 140" class="score-svg">
-            <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00e5cc"/><stop offset="100%" stop-color="#667eea"/></linearGradient></defs>
+            <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00e5cc"/><stop offset="100%" stop-color="#667eea"/>
+            </linearGradient></defs>
             <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12"/>
             <circle cx="70" cy="70" r="60" fill="none" stroke="url(#rg)" stroke-width="12"
               stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="377"
@@ -218,7 +205,7 @@
         </div>
         <div class="score-info">
           <div class="score-tier" id="score-tier">Building...</div>
-          <div class="score-msg" id="score-msg">Track your daily habits to build your score.</div>
+          <div class="score-msg"  id="score-msg">Track your daily habits to build your score.</div>
           <div class="score-stats">
             <div class="ss"><div class="ss-val" id="streak-val">0</div><div class="ss-lbl">Day Streak 🔥</div></div>
             <div class="ss-div"></div>
@@ -229,34 +216,31 @@
 
       <div class="alert-card">
         <div class="alert-icon" id="alert-icon">🔬</div>
-        <div class="alert-body">
-          <div class="alert-title" id="alert-title">Loading health profile...</div>
-          <div class="alert-msg" id="alert-msg"></div>
-        </div>
+        <div><div class="alert-title" id="alert-title">Loading health profile...</div><div class="alert-msg" id="alert-msg"></div></div>
       </div>
 
       <div class="sec-hdr"><span>Today's Habits</span><button class="see-all" onclick="App.tab('track')">Track All →</button></div>
-      <div class="mini-habits" id="mini-habits"></div>
+      <div id="mini-habits"></div>
 
       <div class="tip-card">
         <div class="tip-top"><span class="tip-tag">💡 Daily Insight</span><button class="tip-next" onclick="App.nextTip()">Next →</button></div>
-        <div class="tip-text" id="tip-text">Loading your personalized insight...</div>
+        <div class="tip-text" id="tip-text">Loading insight...</div>
       </div>
 
-      <div class="sec-hdr"><span>Health Screenings Due</span></div>
-      <div id="screenings" class="screenings"></div>
+      <div class="sec-hdr"><span>Screenings Due</span></div>
+      <div id="screenings"></div>
 
       <div class="sec-hdr"><span>Quick Log</span></div>
       <div class="quick-row">
         <button class="quick-btn" onclick="App.quickWater()">💧 +250ml Water</button>
-        <button class="quick-btn" onclick="App.quickLog('exercise')">⚽ Exercise Done</button>
-        <button class="quick-btn" onclick="App.quickLog('vitamins')">💊 Took Vitamins</button>
+        <button class="quick-btn" onclick="App.quickLog('exercise')">⚽ Exercise</button>
+        <button class="quick-btn" onclick="App.quickLog('vitamins')">💊 Vitamins</button>
       </div>
       <div class="spacer"></div>
     </div>
 
-    <!-- TRACK TAB -->
-    <div id="tab-track" class="tab">
+    <!-- TRACK -->
+    <div id="tab-track" class="tab" style="display:none">
       <div class="top-bar sticky"><h2>Daily Tracker</h2><div class="date-chip" id="track-date"></div></div>
       <div class="energy-card">
         <div class="energy-title">Energy Level Today</div>
@@ -268,9 +252,9 @@
         <div class="energy-display" id="energy-display">5 / 10</div>
       </div>
       <div class="track-section">
-        <div class="track-sec-title">💧 Hydration Goal: 2,500 ml</div>
+        <div class="track-sec-title">💧 Hydration — 2,500 ml goal</div>
         <div class="water-cups" id="water-cups"></div>
-        <div class="water-info"><span id="water-ml-disp">0 ml</span><span class="water-goal-lbl"> / 2,500 ml goal</span></div>
+        <div class="water-info"><span id="water-ml-disp">0 ml</span><span class="water-goal-lbl"> / 2,500 ml</span></div>
       </div>
       <div class="track-section">
         <div class="track-sec-title">✅ Daily Habits</div>
@@ -279,20 +263,20 @@
       <div class="track-section">
         <div class="track-sec-title">📏 Body Metrics</div>
         <div class="metrics-row">
-          <div class="metric-box"><label>Waist (cm)</label><input type="number" id="waist-inp" placeholder="—" class="metric-inp" min="40" max="200"></div>
-          <div class="metric-box"><label>Weight (kg)</label><input type="number" id="weight-inp" placeholder="—" class="metric-inp" min="20" max="300"></div>
+          <div class="metric-box"><label>Waist (cm)</label><input type="number" id="waist-inp" placeholder="—" class="metric-inp"></div>
+          <div class="metric-box"><label>Weight (kg)</label><input type="number" id="weight-inp" placeholder="—" class="metric-inp"></div>
         </div>
       </div>
       <div class="track-section">
         <div class="track-sec-title">📝 Notes</div>
-        <textarea id="notes-inp" class="notes-ta" placeholder="How are you feeling today?..."></textarea>
+        <textarea id="notes-inp" class="notes-ta" placeholder="How are you feeling today?"></textarea>
       </div>
       <button class="btn-primary full" onclick="App.saveLog()">💾 Save Today's Log</button>
       <div class="spacer"></div>
     </div>
 
-    <!-- FOOD TAB -->
-    <div id="tab-food" class="tab">
+    <!-- FOOD -->
+    <div id="tab-food" class="tab" style="display:none">
       <div class="top-bar sticky"><h2>Nutrition Guide</h2></div>
       <div class="food-tab-bar">
         <button class="ftab active" onclick="App.foodTab('eat',this)">✅ Eat</button>
@@ -307,8 +291,8 @@
       <div class="spacer"></div>
     </div>
 
-    <!-- PROGRESS TAB -->
-    <div id="tab-progress" class="tab">
+    <!-- PROGRESS -->
+    <div id="tab-progress" class="tab" style="display:none">
       <div class="top-bar sticky"><h2>My Progress</h2></div>
       <div class="prog-stats">
         <div class="pstat"><div class="pstat-val" id="days-tracked">0</div><div class="pstat-lbl">Days Tracked</div></div>
@@ -320,23 +304,20 @@
       <div class="chart-card"><div class="chart-title">Energy Level — 7 Days</div><canvas id="ch-energy" height="160"></canvas></div>
       <div class="sec-hdr"><span>Habit Consistency</span></div>
       <div id="habit-consist" class="habit-consist"></div>
-      <div class="sec-hdr"><span>Waist & Weight Log</span></div>
-      <div id="metrics-log" class="metrics-log"></div>
+      <div class="sec-hdr"><span>Body Metrics Log</span></div>
+      <div id="metrics-log"></div>
       <div class="spacer"></div>
     </div>
 
-    <!-- MORE TAB -->
-    <div id="tab-more" class="tab">
+    <!-- MORE -->
+    <div id="tab-more" class="tab" style="display:none">
       <div class="top-bar sticky"><h2>Profile & Settings</h2></div>
       <div id="profile-card" class="profile-card"></div>
       <div class="more-section">
         <div class="more-sec-title">🔔 Notifications</div>
         <div class="toggle-row">
           <span>Daily Reminders</span>
-          <label class="toggle">
-            <input type="checkbox" id="notif-toggle" onchange="App.toggleNotif(this.checked)">
-            <span class="toggle-slider"></span>
-          </label>
+          <label class="toggle"><input type="checkbox" id="notif-toggle" onchange="App.toggleNotif(this.checked)"><span class="toggle-slider"></span></label>
         </div>
       </div>
       <div class="more-section">
@@ -344,9 +325,9 @@
         <button class="more-btn" onclick="App.resetApp()">🗑️ Reset All Data</button>
       </div>
       <div class="more-section">
-        <div class="more-sec-title">ℹ️ About VitalAge</div>
-        <p class="about-text">Age-calibrated health guidance for every life stage. Not a substitute for professional medical advice.</p>
-        <p class="about-text">Version 1.0.0 · Built with ❤️ for your health journey</p>
+        <div class="more-sec-title">ℹ️ About</div>
+        <p class="about-text">Age-calibrated health guidance. Not a substitute for medical advice.</p>
+        <p class="about-text">Version 1.0.0 · Made for your health journey</p>
       </div>
       <div class="spacer"></div>
     </div>
@@ -361,9 +342,8 @@
     </nav>
   </div>
 
-</div><!-- #app -->
+</div>
 <div id="toast" class="toast"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="app.js"></script>
 </body>

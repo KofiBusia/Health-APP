@@ -392,56 +392,45 @@ const App = {
   init() {
     Store.load();
     this._genIcon();
-
-    // Splash animation
     setTimeout(() => {
-      document.getElementById('splash').classList.remove('active');
+      // Hide splash, show next screen — direct style, no CSS class tricks
+      document.getElementById('splash').style.display = 'none';
       if (STATE.profile) {
-        document.getElementById('main').classList.add('active');
+        document.getElementById('main').style.display = 'flex';
         this.refreshHome();
         this.buildFood();
         this.buildTracker();
       } else {
-        document.getElementById('onboarding').classList.add('active');
+        document.getElementById('onboarding').style.display = 'flex';
       }
-    }, 2200);
+    }, 2000);
   },
 
-  // ── ONBOARDING ──
-  nextStep() {
-    if (STATE.step === 1) {
-      const n = document.getElementById('inp-name').value.trim();
-      if (!n) { toast('Please enter your name 👋'); return; }
+  // ── ONBOARDING — go(n) shows step n, hides all others ──
+  go(n) {
+    // Validate before advancing
+    if (n === 2) {
+      const name = document.getElementById('inp-name').value.trim();
+      if (!name) { toast('Please enter your name 👋'); return; }
     }
-    if (STATE.step === 2) {
-      const d = document.getElementById('inp-dob').value;
-      if (!d) { toast('Please select your date of birth 🎂'); return; }
+    if (n === 3) {
+      const dob = document.getElementById('inp-dob').value;
+      if (!dob) { toast('Please select your date of birth 🎂'); return; }
       if (!STATE.selectedGender) { toast('Please select your biological sex'); return; }
-      const age = calcAge(d);
+      const age = calcAge(dob);
       if (age < 13 || age > 110) { toast('Please check your date of birth'); return; }
     }
-    if (STATE.step < 3) {
-      document.getElementById(`step-${STATE.step}`).classList.remove('active');
-      STATE.step++;
-      document.getElementById(`step-${STATE.step}`).classList.add('active');
-      document.querySelectorAll('.ob-dot').forEach((d, i) => {
-        d.classList.toggle('active', i === STATE.step);
-        d.classList.toggle('done', i < STATE.step);
-      });
+    // Show the target step, hide all others — direct style.display
+    for (let i = 0; i <= 3; i++) {
+      const el = document.getElementById('step-' + i);
+      if (el) el.style.display = (i === n) ? 'flex' : 'none';
     }
+    STATE.step = n;
   },
 
-  prevStep() {
-    if (STATE.step > 0) {
-      document.getElementById(`step-${STATE.step}`).classList.remove('active');
-      STATE.step--;
-      document.getElementById(`step-${STATE.step}`).classList.add('active');
-      document.querySelectorAll('.ob-dot').forEach((d, i) => {
-        d.classList.toggle('active', i === STATE.step);
-        d.classList.toggle('done', i < STATE.step);
-      });
-    }
-  },
+  // Keep old names as aliases so nothing breaks
+  nextStep() { this.go(STATE.step + 1); },
+  prevStep()  { this.go(STATE.step - 1); },
 
   pickGender(btn) {
     document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
@@ -466,8 +455,8 @@ const App = {
       joined: todayKey(),
     };
     Store.save();
-    document.getElementById('onboarding').classList.remove('active');
-    document.getElementById('main').classList.add('active');
+    document.getElementById('onboarding').style.display = 'none';
+    document.getElementById('main').style.display = 'flex';
     this.refreshHome();
     this.buildFood();
     this.buildTracker();
@@ -476,11 +465,14 @@ const App = {
 
   // ── NAVIGATION ──
   tab(name) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    // Show only the selected tab — direct style.display, no classList
+    ['home', 'track', 'food', 'progress', 'more'].forEach(t => {
+      const el = document.getElementById('tab-' + t);
+      if (el) el.style.display = (t === name) ? 'flex' : 'none';
+    });
     document.querySelectorAll('.bnav').forEach(b => {
       b.classList.toggle('active', b.dataset.t === name);
     });
-    document.getElementById(`tab-${name}`).classList.add('active');
 
     if (name === 'progress') this.buildProgress();
     if (name === 'more') this.buildMore();
