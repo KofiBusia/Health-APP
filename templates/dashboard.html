@@ -10,7 +10,6 @@
 </head>
 <body class="app-body">
 
-<!-- SVG gradient defs -->
 <svg class="svg-defs">
   <defs>
     <linearGradient id="sg2" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -19,6 +18,7 @@
     </linearGradient>
   </defs>
 </svg>
+
 <div id="app">
 
 <!-- ═══════ TAB: HOME ═══════ -->
@@ -31,18 +31,47 @@
     <button class="icon-btn" onclick="showTab('more')" title="Settings">⚙️</button>
   </div>
 
-  <!-- Score ring -->
-  <div class="score-wrap">
-    <svg class="score-ring" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="52" class="ring-bg"/>
-      <circle cx="60" cy="60" r="52" class="ring-fill" id="ringFill"
-        stroke-dasharray="327"
-        stroke-dashoffset="{{ 327 - (score / 100 * 327) | int }}"
-        transform="rotate(-90 60 60)"/>
-    </svg>
-    <div class="score-inner">
-      <div class="score-num" id="scoreNum">{{ score }}</div>
-      <div class="score-lbl">Health Score</div>
+  <!-- Score ring + quick vitals -->
+  <div class="home-top">
+    <div class="score-wrap">
+      <svg class="score-ring" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="52" class="ring-bg"/>
+        <circle cx="60" cy="60" r="52" class="ring-fill" id="ringFill"
+          stroke-dasharray="327"
+          stroke-dashoffset="{{ 327 - (score / 100 * 327) | int }}"
+          transform="rotate(-90 60 60)"/>
+      </svg>
+      <div class="score-inner">
+        <div class="score-num" id="scoreNum">{{ score }}</div>
+        <div class="score-lbl">Health Score</div>
+      </div>
+    </div>
+
+    <div class="home-vitals">
+      {% if bmi_val %}
+      <div class="hv-card" onclick="showTab('track')">
+        <div class="hv-icon">⚖️</div>
+        <div class="hv-val">{{ bmi_val }}</div>
+        <div class="hv-lbl">BMI · {{ bmi_label }}</div>
+      </div>
+      {% endif %}
+      <div class="hv-card" onclick="showTab('track')">
+        <div class="hv-icon">💧</div>
+        <div class="hv-val" id="homeWater">{{ water }}</div>
+        <div class="hv-lbl">ml water</div>
+      </div>
+      <div class="hv-card" onclick="showTab('track')">
+        <div class="hv-icon">😴</div>
+        <div class="hv-val">{{ today_log.sleep_hours if today_log and today_log.sleep_hours else '—' }}</div>
+        <div class="hv-lbl">hrs sleep</div>
+      </div>
+      {% if today_log and today_log.bp_systolic %}
+      <div class="hv-card" onclick="showTab('track')">
+        <div class="hv-icon">❤️</div>
+        <div class="hv-val">{{ today_log.bp_systolic }}/{{ today_log.bp_diastolic }}</div>
+        <div class="hv-lbl">Blood Pressure</div>
+      </div>
+      {% endif %}
     </div>
   </div>
 
@@ -57,9 +86,7 @@
   <div class="quick-habits" id="quickHabits">
     {% for h in all_habits %}
     <button class="habit-chip {% if habits.get(h) %}done{% endif %}"
-      data-habit="{{ h }}" onclick="quickHabit(this)">
-      {{ h }}
-    </button>
+      data-habit="{{ h }}" onclick="quickHabit(this)">{{ h }}</button>
     {% endfor %}
   </div>
 
@@ -92,12 +119,25 @@
 <div id="tab-track" class="tab-pane" style="display:none">
   <div class="tab-title">Daily Tracker</div>
 
+  <!-- Energy -->
   <div class="track-section">
     <div class="track-label">⚡ Energy Level <span id="energyVal" class="track-val">{{ energy }}</span>/10</div>
     <input type="range" min="1" max="10" value="{{ energy }}" class="energy-slider" id="energySlider"
       oninput="document.getElementById('energyVal').textContent=this.value">
   </div>
 
+  <!-- Mood -->
+  <div class="track-section">
+    <div class="track-label">😊 Mood <span id="moodVal" class="track-val">{{ today_log.mood if today_log and today_log.mood else 5 }}</span>/10</div>
+    <div class="mood-row" id="moodRow">
+      {% for i in range(1,11) %}
+      <button class="mood-btn {% if today_log and today_log.mood == i %}sel{% endif %}"
+        data-mood="{{ i }}" onclick="setMood({{ i }},this)">{{ ['😞','😟','😕','😐','🙂','😊','😄','😁','🤩','🥳'][i-1] }}</button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Water -->
   <div class="track-section">
     <div class="track-label">💧 Water Intake</div>
     <div class="cups-row" id="cupsRow">
@@ -109,6 +149,23 @@
     <div class="cups-ml" id="cupsMl">{{ water }} / 2,500 ml</div>
   </div>
 
+  <!-- Sleep -->
+  <div class="track-section">
+    <div class="track-label">😴 Sleep <span id="sleepVal" class="track-val">{{ today_log.sleep_hours if today_log and today_log.sleep_hours else 0 }}</span> hrs</div>
+    <input type="range" min="0" max="12" step="0.5"
+      value="{{ today_log.sleep_hours if today_log and today_log.sleep_hours else 0 }}"
+      class="energy-slider" id="sleepSlider"
+      oninput="document.getElementById('sleepVal').textContent=this.value">
+    <div class="sleep-qual-label">Sleep Quality</div>
+    <div class="star-row" id="starRow">
+      {% for i in range(1,6) %}
+      <button class="star-btn {% if today_log and today_log.sleep_quality and today_log.sleep_quality >= i %}lit{% endif %}"
+        data-star="{{ i }}" onclick="setStar({{ i }})">★</button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Habits -->
   <div class="track-section">
     <div class="track-label">✅ Habits</div>
     {% for h in all_habits %}
@@ -120,23 +177,72 @@
     {% endfor %}
   </div>
 
+  <!-- Vitals -->
   <div class="track-section">
-    <div class="track-label">📏 Body Metrics (optional)</div>
+    <div class="track-label">❤️ Vitals</div>
+    <div class="vitals-grid">
+      <div class="vital-inp">
+        <label>BP Systolic</label>
+        <input type="number" id="bpSysInp" class="ob-inp sm" placeholder="e.g. 120"
+          value="{{ today_log.bp_systolic if today_log and today_log.bp_systolic else '' }}">
+      </div>
+      <div class="vital-inp">
+        <label>BP Diastolic</label>
+        <input type="number" id="bpDiaInp" class="ob-inp sm" placeholder="e.g. 80"
+          value="{{ today_log.bp_diastolic if today_log and today_log.bp_diastolic else '' }}">
+      </div>
+      <div class="vital-inp">
+        <label>Heart Rate (bpm)</label>
+        <input type="number" id="hrInp" class="ob-inp sm" placeholder="e.g. 72"
+          value="{{ today_log.heart_rate if today_log and today_log.heart_rate else '' }}">
+      </div>
+      <div class="vital-inp">
+        <label>Glucose (mg/dL)</label>
+        <input type="number" id="glucoseInp" class="ob-inp sm" placeholder="e.g. 95" step="0.1"
+          value="{{ today_log.glucose_mg if today_log and today_log.glucose_mg else '' }}">
+      </div>
+    </div>
+    {% if today_log and today_log.bp_systolic %}
+    <div class="bp-status" id="bpStatus">{{ _bp_label(today_log.bp_systolic, today_log.bp_diastolic) }}</div>
+    {% else %}
+    <div class="bp-status" id="bpStatus"></div>
+    {% endif %}
+  </div>
+
+  <!-- Body Metrics -->
+  <div class="track-section">
+    <div class="track-label">📏 Body Metrics</div>
     <div class="metrics-row">
       <div class="metric-inp">
         <label>Waist (cm)</label>
-        <input type="number" id="waistInp" class="ob-inp sm" placeholder="e.g. 88" step="0.1">
+        <input type="number" id="waistInp" class="ob-inp sm" placeholder="e.g. 88" step="0.1"
+          value="{{ today_log.waist_cm if today_log and today_log.waist_cm else '' }}">
       </div>
       <div class="metric-inp">
         <label>Weight (kg)</label>
-        <input type="number" id="weightInp" class="ob-inp sm" placeholder="e.g. 75" step="0.1">
+        <input type="number" id="weightInp" class="ob-inp sm" placeholder="e.g. 75" step="0.1"
+          value="{{ today_log.weight_kg if today_log and today_log.weight_kg else '' }}">
       </div>
+    </div>
+    <div class="bmi-inline" id="bmiInline">
+      {% if bmi_val %}<span class="bmi-num">BMI {{ bmi_val }}</span> <span class="bmi-tag {{ bmi_label | lower }}">{{ bmi_label }}</span>{% endif %}
     </div>
   </div>
 
+  <!-- Calories -->
+  <div class="track-section">
+    <div class="track-label">🍽️ Calories In <span id="calVal" class="track-val">{{ today_log.calories_in if today_log else 0 }}</span> kcal</div>
+    <input type="range" min="0" max="4000" step="50"
+      value="{{ today_log.calories_in if today_log and today_log.calories_in else 0 }}"
+      class="energy-slider" id="calSlider"
+      oninput="document.getElementById('calVal').textContent=this.value">
+    <div class="cal-range">0 ── 2000 (goal) ── 4000 kcal</div>
+  </div>
+
+  <!-- Notes -->
   <div class="track-section">
     <div class="track-label">📝 Notes</div>
-    <textarea id="notesInp" class="ob-inp" rows="3" placeholder="How do you feel today?"></textarea>
+    <textarea id="notesInp" class="ob-inp" rows="3" placeholder="How do you feel today?">{{ today_log.notes if today_log else '' }}</textarea>
   </div>
 
   <button class="ob-btn" onclick="saveLog()" id="saveBtn">Save Today's Log</button>
@@ -153,31 +259,24 @@
     <button class="ftab" onclick="foodTab('shop',this)">🛒 Shopping</button>
   </div>
 
-  <!-- Eat -->
   <div id="fsec-eat" class="fsec">
     {% for cat, items in food.eat.items() %}
     <div class="food-cat">
       <div class="food-cat-title">{{ cat }}</div>
-      {% for item in items %}
-      <div class="food-item">✓ {{ item }}</div>
-      {% endfor %}
+      {% for item in items %}<div class="food-item">✓ {{ item }}</div>{% endfor %}
     </div>
     {% endfor %}
   </div>
 
-  <!-- Avoid -->
   <div id="fsec-avoid" class="fsec" style="display:none">
     {% for cat, items in food.avoid.items() %}
     <div class="food-cat">
       <div class="food-cat-title avoid">{{ cat }}</div>
-      {% for item in items %}
-      <div class="food-item avoid">✗ {{ item }}</div>
-      {% endfor %}
+      {% for item in items %}<div class="food-item avoid">✗ {{ item }}</div>{% endfor %}
     </div>
     {% endfor %}
   </div>
 
-  <!-- Schedule -->
   <div id="fsec-schedule" class="fsec" style="display:none">
     {% for item in food.schedule %}
     <div class="sched-item">
@@ -190,7 +289,6 @@
     {% endfor %}
   </div>
 
-  <!-- Shopping -->
   <div id="fsec-shop" class="fsec" style="display:none">
     <p class="shop-note">Tap items to check off your list.</p>
     {% for item in food.shopping %}
@@ -205,6 +303,7 @@
 <!-- ═══════ TAB: PROGRESS ═══════ -->
 <div id="tab-progress" class="tab-pane" style="display:none">
   <div class="tab-title">My Progress</div>
+
   <div class="stat-cards">
     <div class="stat-card">
       <div class="stat-num" id="statDays">—</div>
@@ -212,27 +311,47 @@
     </div>
     <div class="stat-card">
       <div class="stat-num" id="statStreak">—</div>
-      <div class="stat-lbl">Best Streak</div>
+      <div class="stat-lbl">Streak</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statSleep">—</div>
+      <div class="stat-lbl">Avg Sleep</div>
     </div>
     <div class="stat-card">
       <div class="stat-num" id="statEnergy">—</div>
       <div class="stat-lbl">Avg Energy</div>
     </div>
   </div>
+
+  <!-- Achievements -->
+  <div class="section-head">Achievements</div>
+  <div id="achievementsList" class="achievements-list"></div>
+
+  <!-- Charts -->
   <div class="chart-card">
     <div class="chart-title">Health Score (7 days)</div>
     <canvas id="chartScore" height="120"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Sleep (hrs, 7 days)</div>
+    <canvas id="chartSleep" height="120"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Mood (7 days)</div>
+    <canvas id="chartMood" height="120"></canvas>
   </div>
   <div class="chart-card">
     <div class="chart-title">Water Intake ml (7 days)</div>
     <canvas id="chartWater" height="120"></canvas>
   </div>
   <div class="chart-card">
-    <div class="chart-title">Energy Level (7 days)</div>
-    <canvas id="chartEnergy" height="120"></canvas>
+    <div class="chart-title">Blood Pressure (7 days)</div>
+    <canvas id="chartBP" height="120"></canvas>
   </div>
+
   <div class="section-head">Habit Consistency (30 days)</div>
   <div id="habitBars"></div>
+
   <div class="section-head">Body Metrics Log</div>
   <div id="metricsTable"></div>
 </div>
@@ -240,30 +359,73 @@
 <!-- ═══════ TAB: MORE ═══════ -->
 <div id="tab-more" class="tab-pane" style="display:none">
   <div class="tab-title">Profile & Settings</div>
+
+  <!-- Profile card -->
   <div class="profile-card">
     <div class="profile-avatar">{{ user.name[0].upper() }}</div>
     <div class="profile-name">{{ user.name }}</div>
     <div class="profile-meta">Age {{ user.age }} · {{ user.gender }} · Joined {{ user.joined.strftime('%b %Y') }}</div>
     {% if user.goals_list %}
     <div class="goals-row">
-      {% for g in user.goals_list %}
-      <span class="goal-chip">{{ g }}</span>
-      {% endfor %}
+      {% for g in user.goals_list %}<span class="goal-chip">{{ g }}</span>{% endfor %}
     </div>
     {% endif %}
   </div>
 
+  <!-- Medical ID -->
   <div class="more-section">
-    <div class="more-title">About VitalAge</div>
-    <p class="more-p">VitalAge delivers age-calibrated health guidance built for West African users. Track habits, monitor metrics, follow nutrition plans, and stay on top of screenings — all in one place.</p>
-    <p class="more-p" style="margin-top:.5rem">Version 1.0 · Built with Flask + SQLite</p>
+    <div class="more-title">🏥 Medical ID</div>
+    <p class="more-p" style="margin-bottom:.8rem">Emergency health information visible to first responders.</p>
+    <div class="med-grid">
+      <div class="med-field">
+        <label class="med-label">Height (cm)</label>
+        <input type="number" id="medHeight" class="ob-inp sm" placeholder="e.g. 175" step="0.5"
+          value="{{ user.height_cm if user.height_cm else '' }}">
+      </div>
+      <div class="med-field">
+        <label class="med-label">Blood Type</label>
+        <select id="medBloodType" class="ob-inp sm sel-inp">
+          <option value="">Unknown</option>
+          {% for bt in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+          <option value="{{ bt }}" {% if user.blood_type == bt %}selected{% endif %}>{{ bt }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <label class="med-label" style="margin-top:.8rem">Allergies</label>
+    <input type="text" id="medAllergies" class="ob-inp" placeholder="e.g. Penicillin, Peanuts"
+      value="{{ user.allergies or '' }}">
+    <label class="med-label" style="margin-top:.8rem">Emergency Contact Name</label>
+    <input type="text" id="medEmerName" class="ob-inp" placeholder="Full name"
+      value="{{ user.emergency_name or '' }}">
+    <label class="med-label" style="margin-top:.6rem">Emergency Contact Phone</label>
+    <input type="tel" id="medEmerPhone" class="ob-inp" placeholder="+233 xx xxx xxxx"
+      value="{{ user.emergency_phone or '' }}">
+    <button class="save-med-btn" onclick="saveMedical()">Save Medical ID</button>
+    <div id="medMsg" class="save-msg"></div>
   </div>
 
+  <!-- About -->
+  <div class="more-section">
+    <div class="more-title">About VitalAge</div>
+    <p class="more-p">Age-calibrated health guidance for West African users. Track habits, vitals, sleep, nutrition, and more.</p>
+    <p class="more-p" style="margin-top:.5rem">Version 2.0 · Flask + SQLite</p>
+  </div>
+
+  <!-- Export -->
+  <div class="more-section" style="text-align:center">
+    <div class="more-title">Export Your Data</div>
+    <p class="more-p" style="margin-bottom:.8rem">Download all your health logs as a CSV file.</p>
+    <a href="/api/export" class="export-btn">⬇️ Download CSV</a>
+  </div>
+
+  <!-- Logout -->
   <div class="logout-section">
     <button class="logout-btn" onclick="window.location.href='/logout'">🚪 Log Out</button>
     <p class="logout-note">Sign back in anytime with your name and date of birth.</p>
   </div>
 
+  <!-- Danger zone -->
   <div class="danger-zone">
     <button class="danger-btn" onclick="resetApp()">🗑️ Reset All Data</button>
     <p class="danger-note">This permanently deletes your profile and all logs.</p>
@@ -288,18 +450,18 @@
     <span>⚙️</span><span>More</span>
   </button>
 </nav>
-
-</div><!-- /app -->
+</div>
 
 <div id="toast" class="toast"></div>
 
 <script>
 // ── State ──
-let currentWater = {{ water }};
+let currentWater  = {{ water }};
+let currentMood   = {{ today_log.mood if today_log and today_log.mood else 5 }};
+let currentStar   = {{ today_log.sleep_quality if today_log and today_log.sleep_quality else 0 }};
 let tipIdx = 0;
-const nowHour = {{ now_hour }};
 
-// ── Tab switching ──
+// ── Tabs ──
 const TABS = ['home','track','food','progress','more'];
 function showTab(name) {
   TABS.forEach(t => {
@@ -325,6 +487,7 @@ function quickWater() {
       if (d.ok) {
         currentWater = d.water_ml;
         document.getElementById('waterLbl').textContent = d.water_ml + 'ml';
+        document.getElementById('homeWater').textContent = d.water_ml;
         updateScore(d.score);
         syncCups(d.water_ml);
         toast('💧 Water logged!');
@@ -332,36 +495,34 @@ function quickWater() {
     });
 }
 
-// ── Quick habit (home tab chips + quick row) ──
+// ── Quick habit ──
 function quickHabit(btn) {
   const habit = btn.dataset.habit;
   fetch('/api/quick_habit', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
+    method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({habit})
   }).then(r=>r.json()).then(d => {
     if (d.ok) {
-      // Update all buttons with same habit
       document.querySelectorAll('[data-habit="'+habit+'"]').forEach(b => {
         b.classList.toggle('done', d.state);
         b.classList.toggle('active', d.state);
       });
-      // sync tracker checkboxes
       document.querySelectorAll('.habit-check').forEach(cb => {
         if (cb.value === habit) cb.checked = d.state;
       });
       updateScore(d.score);
-      toast(d.state ? '✅ ' + habit : '↩️ ' + habit + ' unchecked');
+      toast(d.state ? '✅ '+habit : '↩️ '+habit+' unchecked');
     }
   });
 }
 
-// ── Water cups (tracker) ──
+// ── Cups ──
 function setCups(n) {
   currentWater = n * 250;
   syncCups(currentWater);
   document.getElementById('cupsMl').textContent = currentWater + ' / 2,500 ml';
   document.getElementById('waterLbl').textContent = currentWater + 'ml';
+  document.getElementById('homeWater').textContent = currentWater;
 }
 function syncCups(ml) {
   document.querySelectorAll('.cup').forEach(c => {
@@ -371,6 +532,19 @@ function syncCups(ml) {
   if (el) el.textContent = ml + ' / 2,500 ml';
 }
 
+// ── Mood ──
+function setMood(n, btn) {
+  currentMood = n;
+  document.getElementById('moodVal').textContent = n;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.toggle('sel', parseInt(b.dataset.mood)===n));
+}
+
+// ── Sleep stars ──
+function setStar(n) {
+  currentStar = n;
+  document.querySelectorAll('.star-btn').forEach(b => b.classList.toggle('lit', parseInt(b.dataset.star)<=n));
+}
+
 // ── Save log ──
 function saveLog() {
   const btn = document.getElementById('saveBtn');
@@ -378,33 +552,52 @@ function saveLog() {
   const habits = {};
   document.querySelectorAll('.habit-check').forEach(cb => { habits[cb.value] = cb.checked; });
   const payload = {
-    water_ml: currentWater,
-    energy: parseInt(document.getElementById('energySlider').value),
+    water_ml:      currentWater,
+    energy:        parseInt(document.getElementById('energySlider').value),
     habits,
-    waist_cm: document.getElementById('waistInp').value || null,
-    weight_kg: document.getElementById('weightInp').value || null,
-    notes: document.getElementById('notesInp').value,
+    sleep_hours:   parseFloat(document.getElementById('sleepSlider').value) || null,
+    sleep_quality: currentStar || null,
+    mood:          currentMood || null,
+    bp_systolic:   parseInt(document.getElementById('bpSysInp').value) || null,
+    bp_diastolic:  parseInt(document.getElementById('bpDiaInp').value) || null,
+    heart_rate:    parseInt(document.getElementById('hrInp').value) || null,
+    glucose_mg:    parseFloat(document.getElementById('glucoseInp').value) || null,
+    calories_in:   parseInt(document.getElementById('calSlider').value) || 0,
+    waist_cm:      document.getElementById('waistInp').value || null,
+    weight_kg:     document.getElementById('weightInp').value || null,
+    notes:         document.getElementById('notesInp').value,
   };
   fetch('/api/log', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
+    method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify(payload)
   }).then(r=>r.json()).then(d => {
     btn.disabled = false;
     if (d.ok) {
       updateScore(d.score);
-      // sync home habit chips
+      if (d.bmi) {
+        document.getElementById('bmiInline').innerHTML =
+          `<span class="bmi-num">BMI ${d.bmi}</span> <span class="bmi-tag ${d.bmi_label.toLowerCase()}">${d.bmi_label}</span>`;
+      }
+      // BP status hint
+      const sys = payload.bp_systolic, dia = payload.bp_diastolic;
+      if (sys && dia) document.getElementById('bpStatus').textContent = bpLabel(sys, dia);
       Object.entries(payload.habits).forEach(([h,v]) => {
         document.querySelectorAll('[data-habit="'+h+'"]').forEach(b => {
-          b.classList.toggle('done', v);
-          b.classList.toggle('active', v);
+          b.classList.toggle('done', v); b.classList.toggle('active', v);
         });
       });
       document.getElementById('saveMsg').textContent = '✅ Log saved!';
-      setTimeout(() => document.getElementById('saveMsg').textContent = '', 2500);
+      setTimeout(() => document.getElementById('saveMsg').textContent='', 2500);
       toast('Log saved for today!');
     }
   });
+}
+
+function bpLabel(sys, dia) {
+  if (sys < 120 && dia < 80)  return '✅ Normal BP';
+  if (sys < 130 && dia < 80)  return '⚠️ Elevated BP';
+  if (sys < 140 || dia < 90)  return '⚠️ High BP Stage 1';
+  return '🔴 High BP Stage 2 — see a doctor';
 }
 
 // ── Score ring ──
@@ -417,26 +610,33 @@ function updateScore(s) {
 function nextTip() {
   fetch('/api/tip?idx='+tipIdx)
     .then(r=>r.json()).then(d => {
-      if (d.ok) { tipIdx = d.idx; document.getElementById('tipText').textContent = d.tip; }
+      if (d.ok) { tipIdx=d.idx; document.getElementById('tipText').textContent=d.tip; }
     });
 }
 
 // ── Progress ──
 let chartsBuilt = false;
-let scoreChart, waterChart, energyChart;
+let scoreChart, sleepChart, moodChart, waterChart, bpChart;
 
 function loadProgress() {
   fetch('/api/progress').then(r=>r.json()).then(d => {
     if (!d.ok) return;
-    document.getElementById('statDays').textContent = d.total_logged;
-    document.getElementById('statStreak').textContent = d.streak + ' days';
-    document.getElementById('statEnergy').textContent = d.avg_energy + '/10';
+    document.getElementById('statDays').textContent    = d.total_logged;
+    document.getElementById('statStreak').textContent  = d.streak + ' days';
+    document.getElementById('statEnergy').textContent  = d.avg_energy + '/10';
+    document.getElementById('statSleep').textContent   = d.avg_sleep ? d.avg_sleep+'h' : '—';
 
-    const labels = d.days.map(x=>x.date);
-    const scores = d.days.map(x=>x.score);
-    const waters = d.days.map(x=>x.water);
-    const energies = d.days.map(x=>x.energy);
+    // Achievements
+    const al = document.getElementById('achievementsList');
+    if (d.achievements.length === 0) {
+      al.innerHTML = '<p class="empty-note">Log your first day to start earning badges!</p>';
+    } else {
+      al.innerHTML = d.achievements.map(a =>
+        `<div class="badge-card"><div class="badge-icon">${a.badge}</div><div class="badge-info"><div class="badge-name">${a.name}</div><div class="badge-desc">${a.desc}</div></div></div>`
+      ).join('');
+    }
 
+    const labels  = d.days.map(x=>x.date);
     const cfg = (label, data, color) => ({
       type:'line',
       data:{labels, datasets:[{label, data, borderColor:color, backgroundColor:color+'22',
@@ -447,37 +647,67 @@ function loadProgress() {
     });
 
     if (!chartsBuilt) {
-      scoreChart  = new Chart(document.getElementById('chartScore'),  cfg('Score',  scores,   '#00e5cc'));
-      waterChart  = new Chart(document.getElementById('chartWater'),  cfg('Water',  waters,   '#667eea'));
-      energyChart = new Chart(document.getElementById('chartEnergy'), cfg('Energy', energies, '#ffd700'));
+      scoreChart = new Chart(document.getElementById('chartScore'), cfg('Score', d.days.map(x=>x.score), '#00e5cc'));
+      sleepChart = new Chart(document.getElementById('chartSleep'), cfg('Sleep', d.days.map(x=>x.sleep||0), '#9b59b6'));
+      moodChart  = new Chart(document.getElementById('chartMood'),  cfg('Mood',  d.days.map(x=>x.mood||0),  '#ffd700'));
+      waterChart = new Chart(document.getElementById('chartWater'), cfg('Water', d.days.map(x=>x.water),    '#667eea'));
+      // BP — dual line
+      bpChart = new Chart(document.getElementById('chartBP'), {
+        type:'line',
+        data:{labels, datasets:[
+          {label:'Systolic',  data:d.days.map(x=>x.bp_sys), borderColor:'#ff4757', backgroundColor:'#ff475722', tension:.4, fill:false, pointRadius:4},
+          {label:'Diastolic', data:d.days.map(x=>x.bp_dia), borderColor:'#667eea', backgroundColor:'#667eea22', tension:.4, fill:false, pointRadius:4},
+        ]},
+        options:{responsive:true, plugins:{legend:{labels:{color:'#8fb3c8'}}},
+          scales:{x:{grid:{color:'#1a2a3a'},ticks:{color:'#8fb3c8'}},
+                  y:{grid:{color:'#1a2a3a'},ticks:{color:'#8fb3c8'},min:0}}}
+      });
       chartsBuilt = true;
     } else {
-      [scoreChart, waterChart, energyChart].forEach((c,i) => {
-        c.data.labels = labels;
-        c.data.datasets[0].data = [scores,waters,energies][i];
-        c.update();
-      });
+      const refresh = (chart, data) => { chart.data.labels=labels; chart.data.datasets[0].data=data; chart.update(); };
+      refresh(scoreChart, d.days.map(x=>x.score));
+      refresh(sleepChart, d.days.map(x=>x.sleep||0));
+      refresh(moodChart,  d.days.map(x=>x.mood||0));
+      refresh(waterChart, d.days.map(x=>x.water));
+      bpChart.data.labels=labels;
+      bpChart.data.datasets[0].data=d.days.map(x=>x.bp_sys);
+      bpChart.data.datasets[1].data=d.days.map(x=>x.bp_dia);
+      bpChart.update();
     }
 
     // Habit bars
-    const hb = document.getElementById('habitBars');
-    hb.innerHTML = Object.entries(d.habit_pct).map(([h,p]) => `
-      <div class="hbar-row">
-        <div class="hbar-label">${h}</div>
-        <div class="hbar-track"><div class="hbar-fill" style="width:${p}%"></div></div>
-        <div class="hbar-pct">${p}%</div>
-      </div>`).join('');
+    document.getElementById('habitBars').innerHTML = Object.entries(d.habit_pct).map(([h,p]) =>
+      `<div class="hbar-row"><div class="hbar-label">${h}</div><div class="hbar-track"><div class="hbar-fill" style="width:${p}%"></div></div><div class="hbar-pct">${p}%</div></div>`
+    ).join('');
 
     // Metrics table
     const mt = document.getElementById('metricsTable');
     if (d.metrics.length === 0) {
-      mt.innerHTML = '<p class="empty-note">No body metrics logged yet. Use the Tracker tab to add waist/weight.</p>';
+      mt.innerHTML = '<p class="empty-note">No body metrics logged yet.</p>';
     } else {
       mt.innerHTML = `<table class="metrics-tbl">
-        <thead><tr><th>Date</th><th>Waist (cm)</th><th>Weight (kg)</th></tr></thead>
-        <tbody>${d.metrics.map(m=>`<tr><td>${m.date}</td><td>${m.waist||'—'}</td><td>${m.weight||'—'}</td></tr>`).join('')}</tbody>
+        <thead><tr><th>Date</th><th>Waist</th><th>Weight</th><th>BMI</th></tr></thead>
+        <tbody>${d.metrics.map(m=>`<tr><td>${m.date}</td><td>${m.waist||'—'}</td><td>${m.weight||'—'}</td><td>${m.bmi||'—'}</td></tr>`).join('')}</tbody>
       </table>`;
     }
+  });
+}
+
+// ── Save Medical ID ──
+function saveMedical() {
+  const payload = {
+    height_cm:       parseFloat(document.getElementById('medHeight').value) || null,
+    blood_type:      document.getElementById('medBloodType').value,
+    allergies:       document.getElementById('medAllergies').value,
+    emergency_name:  document.getElementById('medEmerName').value,
+    emergency_phone: document.getElementById('medEmerPhone').value,
+  };
+  fetch('/api/update_medical', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  }).then(r=>r.json()).then(d => {
+    const msg = document.getElementById('medMsg');
+    if (d.ok) { msg.textContent='✅ Medical ID saved!'; setTimeout(()=>msg.textContent='',2500); toast('Medical ID saved!'); }
   });
 }
 
@@ -490,11 +720,10 @@ function resetApp() {
 // ── Toast ──
 function toast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
 }
 
-// Init cups on load
 syncCups(currentWater);
 </script>
 </body>
