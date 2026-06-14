@@ -401,7 +401,7 @@ const App = {
         this.buildFood();
         this.buildTracker();
       } else {
-        document.getElementById('onboarding').style.display = 'flex';
+        document.getElementById('onboarding').style.display = 'block';
       }
     }, 2000);
   },
@@ -433,7 +433,7 @@ const App = {
   prevStep()  { this.go(STATE.step - 1); },
 
   pickGender(btn) {
-    document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.ob-sex-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     STATE.selectedGender = btn.dataset.g;
   },

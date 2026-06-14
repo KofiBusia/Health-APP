@@ -1,6 +1,6 @@
 /* VitalAge — Service Worker for offline PWA support */
 
-const CACHE = 'vitalage-v1';
+const CACHE = 'vitalage-v3';
 const ASSETS = [
   './',
   './index.html',
