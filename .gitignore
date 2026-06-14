@@ -1,5 +1,6 @@
-node_modules/
-.DS_Store
-Thumbs.db
-*.log
+﻿venv/
+instance/
+__pycache__/
+*.pyc
+*.db
 .env

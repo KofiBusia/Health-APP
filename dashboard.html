@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>VitalAge — {{ user.name }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="app-body">
+
+<!-- SVG gradient defs -->
+<svg class="svg-defs">
+  <defs>
+    <linearGradient id="sg2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00e5cc"/>
+      <stop offset="100%" stop-color="#667eea"/>
+    </linearGradient>
+  </defs>
+</svg>
+<div id="app">
+
+<!-- ═══════ TAB: HOME ═══════ -->
+<div id="tab-home" class="tab-pane active">
+  <div class="top-bar">
+    <div>
+      <div class="greeting">Good {{ 'morning' if now_hour < 12 else ('afternoon' if now_hour < 17 else 'evening') }}, <strong>{{ user.name }}</strong></div>
+      <div class="age-chip">Age {{ user.age }} · {{ user.gender }}</div>
+    </div>
+    <button class="icon-btn" onclick="showTab('more')" title="Settings">⚙️</button>
+  </div>
+
+  <!-- Score ring -->
+  <div class="score-wrap">
+    <svg class="score-ring" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="52" class="ring-bg"/>
+      <circle cx="60" cy="60" r="52" class="ring-fill" id="ringFill"
+        stroke-dasharray="327"
+        stroke-dashoffset="{{ 327 - (score / 100 * 327) | int }}"
+        transform="rotate(-90 60 60)"/>
+    </svg>
+    <div class="score-inner">
+      <div class="score-num" id="scoreNum">{{ score }}</div>
+      <div class="score-lbl">Health Score</div>
+    </div>
+  </div>
+
+  <!-- Alert card -->
+  <div class="alert-card">
+    <div class="alert-title">⚠️ {{ tier_data.alert_title }}</div>
+    <div class="alert-msg">{{ tier_data.alert_msg }}</div>
+  </div>
+
+  <!-- Quick habits -->
+  <div class="section-head">Today's Habits</div>
+  <div class="quick-habits" id="quickHabits">
+    {% for h in all_habits %}
+    <button class="habit-chip {% if habits.get(h) %}done{% endif %}"
+      data-habit="{{ h }}" onclick="quickHabit(this)">
+      {{ h }}
+    </button>
+    {% endfor %}
+  </div>
+
+  <!-- Tip card -->
+  <div class="tip-card">
+    <div class="tip-label">💡 Today's Tip</div>
+    <div class="tip-text" id="tipText">{{ tip }}</div>
+    <button class="tip-next" onclick="nextTip()">Next tip →</button>
+  </div>
+
+  <!-- Screenings -->
+  <div class="section-head">Recommended Screenings</div>
+  <div class="screening-list">
+    {% for s in tier_data.screenings %}
+    <div class="screening-item">✓ {{ s }}</div>
+    {% endfor %}
+  </div>
+
+  <!-- Quick log row -->
+  <div class="quick-row">
+    <button class="quick-btn" onclick="quickWater()">💧 +250ml<br><small id="waterLbl">{{ water }}ml</small></button>
+    <button class="quick-btn {% if habits.get('Morning Exercise') %}active{% endif %}"
+      data-habit="Morning Exercise" onclick="quickHabit(this)">🏃 Exercise<br><small>Tap to log</small></button>
+    <button class="quick-btn {% if habits.get('Herbal Tea') %}active{% endif %}"
+      data-habit="Herbal Tea" onclick="quickHabit(this)">🌿 Herbal Tea<br><small>Tap to log</small></button>
+  </div>
+</div>
+
+<!-- ═══════ TAB: TRACK ═══════ -->
+<div id="tab-track" class="tab-pane" style="display:none">
+  <div class="tab-title">Daily Tracker</div>
+
+  <div class="track-section">
+    <div class="track-label">⚡ Energy Level <span id="energyVal" class="track-val">{{ energy }}</span>/10</div>
+    <input type="range" min="1" max="10" value="{{ energy }}" class="energy-slider" id="energySlider"
+      oninput="document.getElementById('energyVal').textContent=this.value">
+  </div>
+
+  <div class="track-section">
+    <div class="track-label">💧 Water Intake</div>
+    <div class="cups-row" id="cupsRow">
+      {% for i in range(1, 11) %}
+      <button class="cup {% if water >= i*250 %}filled{% endif %}"
+        data-cup="{{ i }}" onclick="setCups({{ i }})">💧</button>
+      {% endfor %}
+    </div>
+    <div class="cups-ml" id="cupsMl">{{ water }} / 2,500 ml</div>
+  </div>
+
+  <div class="track-section">
+    <div class="track-label">✅ Habits</div>
+    {% for h in all_habits %}
+    <label class="habit-row">
+      <input type="checkbox" class="habit-check" name="habit" value="{{ h }}"
+        {% if habits.get(h) %}checked{% endif %}>
+      <span>{{ h }}</span>
+    </label>
+    {% endfor %}
+  </div>
+
+  <div class="track-section">
+    <div class="track-label">📏 Body Metrics (optional)</div>
+    <div class="metrics-row">
+      <div class="metric-inp">
+        <label>Waist (cm)</label>
+        <input type="number" id="waistInp" class="ob-inp sm" placeholder="e.g. 88" step="0.1">
+      </div>
+      <div class="metric-inp">
+        <label>Weight (kg)</label>
+        <input type="number" id="weightInp" class="ob-inp sm" placeholder="e.g. 75" step="0.1">
+      </div>
+    </div>
+  </div>
+
+  <div class="track-section">
+    <div class="track-label">📝 Notes</div>
+    <textarea id="notesInp" class="ob-inp" rows="3" placeholder="How do you feel today?"></textarea>
+  </div>
+
+  <button class="ob-btn" onclick="saveLog()" id="saveBtn">Save Today's Log</button>
+  <div id="saveMsg" class="save-msg"></div>
+</div>
+
+<!-- ═══════ TAB: FOOD ═══════ -->
+<div id="tab-food" class="tab-pane" style="display:none">
+  <div class="tab-title">Nutrition Guide</div>
+  <div class="food-tabs">
+    <button class="ftab active" onclick="foodTab('eat',this)">✅ Eat</button>
+    <button class="ftab" onclick="foodTab('avoid',this)">🚫 Avoid</button>
+    <button class="ftab" onclick="foodTab('schedule',this)">🕐 Schedule</button>
+    <button class="ftab" onclick="foodTab('shop',this)">🛒 Shopping</button>
+  </div>
+
+  <!-- Eat -->
+  <div id="fsec-eat" class="fsec">
+    {% for cat, items in food.eat.items() %}
+    <div class="food-cat">
+      <div class="food-cat-title">{{ cat }}</div>
+      {% for item in items %}
+      <div class="food-item">✓ {{ item }}</div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Avoid -->
+  <div id="fsec-avoid" class="fsec" style="display:none">
+    {% for cat, items in food.avoid.items() %}
+    <div class="food-cat">
+      <div class="food-cat-title avoid">{{ cat }}</div>
+      {% for item in items %}
+      <div class="food-item avoid">✗ {{ item }}</div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Schedule -->
+  <div id="fsec-schedule" class="fsec" style="display:none">
+    {% for item in food.schedule %}
+    <div class="sched-item">
+      <div class="sched-time">{{ item.time }}</div>
+      <div class="sched-body">
+        <div class="sched-label">{{ item.label }}</div>
+        <div class="sched-detail">{{ item.detail }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Shopping -->
+  <div id="fsec-shop" class="fsec" style="display:none">
+    <p class="shop-note">Tap items to check off your list.</p>
+    {% for item in food.shopping %}
+    <label class="shop-item">
+      <input type="checkbox" onchange="this.parentElement.classList.toggle('checked',this.checked)">
+      <span>{{ item }}</span>
+    </label>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ═══════ TAB: PROGRESS ═══════ -->
+<div id="tab-progress" class="tab-pane" style="display:none">
+  <div class="tab-title">My Progress</div>
+  <div class="stat-cards">
+    <div class="stat-card">
+      <div class="stat-num" id="statDays">—</div>
+      <div class="stat-lbl">Days Tracked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statStreak">—</div>
+      <div class="stat-lbl">Best Streak</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statEnergy">—</div>
+      <div class="stat-lbl">Avg Energy</div>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Health Score (7 days)</div>
+    <canvas id="chartScore" height="120"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Water Intake ml (7 days)</div>
+    <canvas id="chartWater" height="120"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Energy Level (7 days)</div>
+    <canvas id="chartEnergy" height="120"></canvas>
+  </div>
+  <div class="section-head">Habit Consistency (30 days)</div>
+  <div id="habitBars"></div>
+  <div class="section-head">Body Metrics Log</div>
+  <div id="metricsTable"></div>
+</div>
+
+<!-- ═══════ TAB: MORE ═══════ -->
+<div id="tab-more" class="tab-pane" style="display:none">
+  <div class="tab-title">Profile & Settings</div>
+  <div class="profile-card">
+    <div class="profile-avatar">{{ user.name[0].upper() }}</div>
+    <div class="profile-name">{{ user.name }}</div>
+    <div class="profile-meta">Age {{ user.age }} · {{ user.gender }} · Joined {{ user.joined.strftime('%b %Y') }}</div>
+    {% if user.goals_list %}
+    <div class="goals-row">
+      {% for g in user.goals_list %}
+      <span class="goal-chip">{{ g }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="more-section">
+    <div class="more-title">About VitalAge</div>
+    <p class="more-p">VitalAge delivers age-calibrated health guidance built for West African users. Track habits, monitor metrics, follow nutrition plans, and stay on top of screenings — all in one place.</p>
+    <p class="more-p" style="margin-top:.5rem">Version 1.0 · Built with Flask + SQLite</p>
+  </div>
+
+  <div class="danger-zone">
+    <button class="danger-btn" onclick="resetApp()">🗑️ Reset All Data</button>
+    <p class="danger-note">This permanently deletes your profile and all logs.</p>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="bnav-btn active" id="bnav-home" onclick="showTab('home')">
+    <span>🏠</span><span>Home</span>
+  </button>
+  <button class="bnav-btn" id="bnav-track" onclick="showTab('track')">
+    <span>📊</span><span>Track</span>
+  </button>
+  <button class="bnav-btn" id="bnav-food" onclick="showTab('food')">
+    <span>🥗</span><span>Food</span>
+  </button>
+  <button class="bnav-btn" id="bnav-progress" onclick="showTab('progress')">
+    <span>📈</span><span>Progress</span>
+  </button>
+  <button class="bnav-btn" id="bnav-more" onclick="showTab('more')">
+    <span>⚙️</span><span>More</span>
+  </button>
+</nav>
+
+</div><!-- /app -->
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── State ──
+let currentWater = {{ water }};
+let tipIdx = 0;
+const nowHour = {{ now_hour }};
+
+// ── Tab switching ──
+const TABS = ['home','track','food','progress','more'];
+function showTab(name) {
+  TABS.forEach(t => {
+    document.getElementById('tab-'+t).style.display = (t===name) ? 'block' : 'none';
+    document.getElementById('bnav-'+t).classList.toggle('active', t===name);
+  });
+  if (name === 'progress') loadProgress();
+}
+
+// ── Food sub-tabs ──
+function foodTab(name, btn) {
+  ['eat','avoid','schedule','shop'].forEach(t => {
+    document.getElementById('fsec-'+t).style.display = (t===name) ? 'block' : 'none';
+  });
+  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Quick water ──
+function quickWater() {
+  fetch('/api/quick_water', {method:'POST'})
+    .then(r=>r.json()).then(d => {
+      if (d.ok) {
+        currentWater = d.water_ml;
+        document.getElementById('waterLbl').textContent = d.water_ml + 'ml';
+        updateScore(d.score);
+        syncCups(d.water_ml);
+        toast('💧 Water logged!');
+      }
+    });
+}
+
+// ── Quick habit (home tab chips + quick row) ──
+function quickHabit(btn) {
+  const habit = btn.dataset.habit;
+  fetch('/api/quick_habit', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({habit})
+  }).then(r=>r.json()).then(d => {
+    if (d.ok) {
+      // Update all buttons with same habit
+      document.querySelectorAll('[data-habit="'+habit+'"]').forEach(b => {
+        b.classList.toggle('done', d.state);
+        b.classList.toggle('active', d.state);
+      });
+      // sync tracker checkboxes
+      document.querySelectorAll('.habit-check').forEach(cb => {
+        if (cb.value === habit) cb.checked = d.state;
+      });
+      updateScore(d.score);
+      toast(d.state ? '✅ ' + habit : '↩️ ' + habit + ' unchecked');
+    }
+  });
+}
+
+// ── Water cups (tracker) ──
+function setCups(n) {
+  currentWater = n * 250;
+  syncCups(currentWater);
+  document.getElementById('cupsMl').textContent = currentWater + ' / 2,500 ml';
+  document.getElementById('waterLbl').textContent = currentWater + 'ml';
+}
+function syncCups(ml) {
+  document.querySelectorAll('.cup').forEach(c => {
+    c.classList.toggle('filled', parseInt(c.dataset.cup)*250 <= ml);
+  });
+  const el = document.getElementById('cupsMl');
+  if (el) el.textContent = ml + ' / 2,500 ml';
+}
+
+// ── Save log ──
+function saveLog() {
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  const habits = {};
+  document.querySelectorAll('.habit-check').forEach(cb => { habits[cb.value] = cb.checked; });
+  const payload = {
+    water_ml: currentWater,
+    energy: parseInt(document.getElementById('energySlider').value),
+    habits,
+    waist_cm: document.getElementById('waistInp').value || null,
+    weight_kg: document.getElementById('weightInp').value || null,
+    notes: document.getElementById('notesInp').value,
+  };
+  fetch('/api/log', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  }).then(r=>r.json()).then(d => {
+    btn.disabled = false;
+    if (d.ok) {
+      updateScore(d.score);
+      // sync home habit chips
+      Object.entries(payload.habits).forEach(([h,v]) => {
+        document.querySelectorAll('[data-habit="'+h+'"]').forEach(b => {
+          b.classList.toggle('done', v);
+          b.classList.toggle('active', v);
+        });
+      });
+      document.getElementById('saveMsg').textContent = '✅ Log saved!';
+      setTimeout(() => document.getElementById('saveMsg').textContent = '', 2500);
+      toast('Log saved for today!');
+    }
+  });
+}
+
+// ── Score ring ──
+function updateScore(s) {
+  document.getElementById('scoreNum').textContent = s;
+  document.getElementById('ringFill').setAttribute('stroke-dashoffset', 327 - Math.round(s/100*327));
+}
+
+// ── Next tip ──
+function nextTip() {
+  fetch('/api/tip?idx='+tipIdx)
+    .then(r=>r.json()).then(d => {
+      if (d.ok) { tipIdx = d.idx; document.getElementById('tipText').textContent = d.tip; }
+    });
+}
+
+// ── Progress ──
+let chartsBuilt = false;
+let scoreChart, waterChart, energyChart;
+
+function loadProgress() {
+  fetch('/api/progress').then(r=>r.json()).then(d => {
+    if (!d.ok) return;
+    document.getElementById('statDays').textContent = d.total_logged;
+    document.getElementById('statStreak').textContent = d.streak + ' days';
+    document.getElementById('statEnergy').textContent = d.avg_energy + '/10';
+
+    const labels = d.days.map(x=>x.date);
+    const scores = d.days.map(x=>x.score);
+    const waters = d.days.map(x=>x.water);
+    const energies = d.days.map(x=>x.energy);
+
+    const cfg = (label, data, color) => ({
+      type:'line',
+      data:{labels, datasets:[{label, data, borderColor:color, backgroundColor:color+'22',
+        tension:.4, fill:true, pointBackgroundColor:color, pointRadius:4}]},
+      options:{responsive:true, plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'#1a2a3a'},ticks:{color:'#8fb3c8'}},
+                y:{grid:{color:'#1a2a3a'},ticks:{color:'#8fb3c8'},min:0}}}
+    });
+
+    if (!chartsBuilt) {
+      scoreChart  = new Chart(document.getElementById('chartScore'),  cfg('Score',  scores,   '#00e5cc'));
+      waterChart  = new Chart(document.getElementById('chartWater'),  cfg('Water',  waters,   '#667eea'));
+      energyChart = new Chart(document.getElementById('chartEnergy'), cfg('Energy', energies, '#ffd700'));
+      chartsBuilt = true;
+    } else {
+      [scoreChart, waterChart, energyChart].forEach((c,i) => {
+        c.data.labels = labels;
+        c.data.datasets[0].data = [scores,waters,energies][i];
+        c.update();
+      });
+    }
+
+    // Habit bars
+    const hb = document.getElementById('habitBars');
+    hb.innerHTML = Object.entries(d.habit_pct).map(([h,p]) => `
+      <div class="hbar-row">
+        <div class="hbar-label">${h}</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:${p}%"></div></div>
+        <div class="hbar-pct">${p}%</div>
+      </div>`).join('');
+
+    // Metrics table
+    const mt = document.getElementById('metricsTable');
+    if (d.metrics.length === 0) {
+      mt.innerHTML = '<p class="empty-note">No body metrics logged yet. Use the Tracker tab to add waist/weight.</p>';
+    } else {
+      mt.innerHTML = `<table class="metrics-tbl">
+        <thead><tr><th>Date</th><th>Waist (cm)</th><th>Weight (kg)</th></tr></thead>
+        <tbody>${d.metrics.map(m=>`<tr><td>${m.date}</td><td>${m.waist||'—'}</td><td>${m.weight||'—'}</td></tr>`).join('')}</tbody>
+      </table>`;
+    }
+  });
+}
+
+// ── Reset ──
+function resetApp() {
+  if (!confirm('Delete all your data permanently?')) return;
+  fetch('/api/reset', {method:'POST'}).then(()=>{ window.location.href='/'; });
+}
+
+// ── Toast ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Init cups on load
+syncCups(currentWater);
+</script>
+</body>
+</html>

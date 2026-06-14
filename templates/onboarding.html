@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>VitalAge — Health Guide</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-inner">
+    <div class="splash-icon">
+      <svg viewBox="0 0 60 60" fill="none">
+        <defs>
+          <linearGradient id="sg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00e5cc"/>
+            <stop offset="100%" stop-color="#667eea"/>
+          </linearGradient>
+        </defs>
+        <rect width="60" height="60" rx="16" fill="url(#sg)"/>
+        <polyline points="5,30 14,30 18,18 22,42 28,24 32,36 38,30 55,30"
+          stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <h1 class="splash-title">VitalAge</h1>
+    <p class="splash-sub">Age-Calibrated Health Guidance</p>
+    <div class="splash-bar"><div class="splash-fill" id="splashFill"></div></div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="onboarding" style="display:none">
+
+  <!-- Step 0 — Welcome -->
+  <div class="ob-step" id="step-0">
+    <div class="ob-hero">
+      <div class="logo-bar">
+        <svg class="logo-icon" viewBox="0 0 40 40">
+          <defs>
+            <linearGradient id="lg0" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#00e5cc"/>
+              <stop offset="100%" stop-color="#667eea"/>
+            </linearGradient>
+          </defs>
+          <rect width="40" height="40" rx="10" fill="url(#lg0)"/>
+          <polyline points="3,20 9,20 12,12 15,28 19,16 22,24 26,20 37,20"
+            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <span class="logo-text">VitalAge</span>
+      </div>
+
+      <div class="ecg-wrap">
+        <svg class="ecg-svg" viewBox="0 0 320 80" preserveAspectRatio="xMidYMid meet">
+          <polyline class="ecg-line" points="0,40 40,40 55,40 65,10 75,70 85,40 100,40 115,40 125,15 135,65 145,40 160,40 200,40 215,40 225,10 235,70 245,40 260,40 275,40 285,15 295,65 305,40 320,40"/>
+          <circle class="ecg-dot" cx="0" cy="40" r="4" fill="#00e5cc"/>
+        </svg>
+      </div>
+
+      <h2 class="hero-h1">Live Longer,<br><span class="grad-text">Live Better</span></h2>
+      <p class="hero-sub">Personalised health guidance calibrated to your exact age, body, and goals — built for West Africa.</p>
+
+      <div class="feature-grid">
+        <div class="feat">🎯<span>Age-Smart</span></div>
+        <div class="feat">📊<span>Daily Tracking</span></div>
+        <div class="feat">🥗<span>Nutrition</span></div>
+        <div class="feat">🩺<span>Screenings</span></div>
+      </div>
+
+      <button class="ob-btn" onclick="go(1)">Start My Health Journey →</button>
+      <p class="trust">Free · Private · No account needed</p>
+    </div>
+  </div>
+
+  <!-- Step 1 — Name -->
+  <div class="ob-step" id="step-1" style="display:none">
+    <div class="ob-card">
+      <button class="ob-back" onclick="go(0)">← Back</button>
+      <div class="ob-emoji">👋</div>
+      <h2 class="ob-h2">What's your name?</h2>
+      <p class="ob-p">We'll personalise your dashboard just for you.</p>
+      <input id="inp-name" class="ob-inp" type="text" placeholder="Enter your first name" autocomplete="given-name">
+      <div id="err-1" class="ob-err"></div>
+      <button class="ob-btn" onclick="go(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 2 — DOB + Gender -->
+  <div class="ob-step" id="step-2" style="display:none">
+    <div class="ob-card">
+      <button class="ob-back" onclick="go(1)">← Back</button>
+      <div class="ob-emoji">📅</div>
+      <h2 class="ob-h2">Date of birth & gender</h2>
+      <p class="ob-p">Your age drives everything — screenings, habits, tips.</p>
+      <label class="ob-label">Date of Birth</label>
+      <input id="inp-dob" class="ob-inp" type="date">
+      <label class="ob-label" style="margin-top:1.2rem">Gender</label>
+      <div class="sex-row">
+        <button class="ob-sex-btn" id="btn-male"   onclick="pickGender('Male',this)">♂ Male</button>
+        <button class="ob-sex-btn" id="btn-female" onclick="pickGender('Female',this)">♀ Female</button>
+      </div>
+      <div id="err-2" class="ob-err"></div>
+      <button class="ob-btn" onclick="go(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 3 — Goals -->
+  <div class="ob-step" id="step-3" style="display:none">
+    <div class="ob-card">
+      <button class="ob-back" onclick="go(2)">← Back</button>
+      <div class="ob-emoji">🎯</div>
+      <h2 class="ob-h2">What are your health goals?</h2>
+      <p class="ob-p">Pick all that apply. We'll tailor your plan.</p>
+      <div class="goal-grid">
+        <button class="ob-goal" onclick="toggleGoal(this)" data-goal="Weight">⚖️ Weight</button>
+        <button class="ob-goal" onclick="toggleGoal(this)" data-goal="Energy">⚡ Energy</button>
+        <button class="ob-goal" onclick="toggleGoal(this)" data-goal="Heart">❤️ Heart</button>
+        <button class="ob-goal" onclick="toggleGoal(this)" data-goal="Strength">💪 Strength</button>
+        <button class="ob-goal" onclick="toggleGoal(this)" data-goal="Sleep">😴 Sleep</button>
+        <button class="ob-goal" onclick="toggleGoal(this)" data-goal="Stress">🧘 Stress</button>
+        <button class="ob-goal" onclick="toggleGoal(this)" data-goal="Longevity">🌿 Longevity</button>
+        <button class="ob-goal" onclick="toggleGoal(this)" data-goal="Gut">🦠 Gut Health</button>
+      </div>
+      <div id="err-3" class="ob-err"></div>
+      <button class="ob-btn" id="finish-btn" onclick="finish()">Start My Journey 🚀</button>
+    </div>
+  </div>
+
+</div><!-- /onboarding -->
+
+<div id="toast" class="toast"></div>
+
+<script>
+let selectedGender = null;
+const selectedGoals = new Set();
+
+function go(n) {
+  // Validate before advancing
+  if (n === 2) {
+    const name = document.getElementById('inp-name').value.trim();
+    if (!name) { showErr('err-1', 'Please enter your name'); return; }
+    clearErr('err-1');
+  }
+  if (n === 3) {
+    const dob = document.getElementById('inp-dob').value;
+    if (!dob) { showErr('err-2', 'Please select your date of birth'); return; }
+    if (!selectedGender) { showErr('err-2', 'Please select your gender'); return; }
+    const age = calcAge(dob);
+    if (age < 13 || age > 110) { showErr('err-2', 'Age must be between 13 and 110'); return; }
+    clearErr('err-2');
+  }
+  for (let i = 0; i <= 3; i++) {
+    document.getElementById('step-'+i).style.display = (i===n) ? 'flex' : 'none';
+  }
+}
+
+function calcAge(dob) {
+  const b = new Date(dob), t = new Date();
+  let age = t.getFullYear() - b.getFullYear();
+  if (t.getMonth() < b.getMonth() || (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())) age--;
+  return age;
+}
+
+function pickGender(g, btn) {
+  selectedGender = g;
+  document.querySelectorAll('.ob-sex-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function toggleGoal(btn) {
+  const g = btn.dataset.goal;
+  if (selectedGoals.has(g)) { selectedGoals.delete(g); btn.classList.remove('selected'); }
+  else { selectedGoals.add(g); btn.classList.add('selected'); }
+}
+
+function finish() {
+  const btn = document.getElementById('finish-btn');
+  btn.disabled = true;
+  btn.textContent = 'Setting up…';
+  fetch('/api/register', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      name: document.getElementById('inp-name').value.trim(),
+      dob:  document.getElementById('inp-dob').value,
+      gender: selectedGender,
+      goals: [...selectedGoals],
+    })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.ok) { window.location.href = d.redirect; }
+    else { showErr('err-3', d.error); btn.disabled=false; btn.textContent='Start My Journey 🚀'; }
+  });
+}
+
+function showErr(id, msg) { document.getElementById(id).textContent = msg; }
+function clearErr(id) { document.getElementById(id).textContent = ''; }
+
+// Splash
+window.addEventListener('load', () => {
+  const fill = document.getElementById('splashFill');
+  let w = 0;
+  const iv = setInterval(() => {
+    w += 4; fill.style.width = w + '%';
+    if (w >= 100) { clearInterval(iv); setTimeout(showOnboarding, 300); }
+  }, 50);
+});
+
+function showOnboarding() {
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('onboarding').style.display = 'block';
+}
+
+// ECG animation
+(function ecgAnim() {
+  const dot = document.querySelector('.ecg-dot');
+  if (!dot) return;
+  const pts = [0,40,40,40,55,40,65,10,75,70,85,40,100,40,115,40,125,15,135,65,145,40,160,40,200,40,215,40,225,10,235,70,245,40,260,40,275,40,285,15,295,65,305,40,320,40];
+  let t = 0;
+  function frame() {
+    t = (t + 1) % (pts.length/2);
+    const x = pts[t*2], y = pts[t*2+1];
+    dot.setAttribute('cx', x); dot.setAttribute('cy', y);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
